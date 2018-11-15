@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">ConsumoApi</string>
+    <string name="botao_pesquisar">Search</string>
+    <string name="hint_search">Input number pokemon</string>
+    <string name="button_search">Search</string>
+</resources>
