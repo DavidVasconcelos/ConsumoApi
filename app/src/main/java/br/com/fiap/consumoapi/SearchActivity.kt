@@ -5,12 +5,17 @@ import android.os.Bundle
 import android.widget.Toast
 import br.com.fiap.consumoapi.api.PokemonApi
 import br.com.fiap.consumoapi.model.Pokemon
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_search.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.Retrofit
+import com.facebook.stetho.okhttp3.StethoInterceptor
+import okhttp3.OkHttpClient
+
+
 
 
 class SearchActivity : AppCompatActivity() {
@@ -24,9 +29,14 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun search() {
+        val okHttp = OkHttpClient.Builder()
+            .addNetworkInterceptor(StethoInterceptor())
+            .build()
+
         val retrofit = Retrofit.Builder()
             .baseUrl("https://pokeapi.co")
             .addConverterFactory(GsonConverterFactory.create())
+            .client(okHttp)
             .build()
 
         val pokeApi = retrofit.create(PokemonApi::class.java)
@@ -43,13 +53,23 @@ class SearchActivity : AppCompatActivity() {
 
             override fun onResponse(call: Call<Pokemon>?, response: Response<Pokemon>?) {
                 if(response?.isSuccessful == true) {
+
                     val pokemon = response.body()
                     tvPokemon.text = pokemon?.name
+
+                    Picasso.get()
+                        .load(pokemon?.sprites?.frontDefault)
+                        .placeholder(R.drawable.searching)
+                        .error(R.drawable.notfound)
+                        .into(ivPokemon)
+
                 } else {
-                    Toast.makeText(this@SearchActivity,
-                        "Deu ruim",
-                        Toast.LENGTH_LONG)
-                        .show()
+
+                    tvPokemon.text = "Não encontrado"
+
+                    Picasso.get()
+                        .load(R.drawable.notfound)
+                        .into(ivPokemon)
                 }
 
             }
